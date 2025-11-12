@@ -1,3 +1,13 @@
+#/**
+ * @file oven_publisher.cpp
+ * @brief Publishes oven status and provides a service to add 5 seconds to runtime.
+ *
+ * This node publishes human-readable oven status messages on the "oven_status" topic
+ * and provides a Trigger service named "add_5_sec" which extends the oven runtime.
+ *
+ * Based on ROS2 Humble tutorials: https://docs.ros.org/en/humble/Tutorials.html
+ */
+
 // This code is based on ros2 humble tutorials from: https://docs.ros.org/en/humble/Tutorials.html
 
 #include <chrono>
@@ -11,9 +21,21 @@
 
 using namespace std::chrono_literals;
 
+/**
+ * @class OvenPublisher
+ * @brief ROS2 node that publishes oven status and offers a service to add time.
+ *
+ * The node declares a string parameter ("name") to identify the oven instance
+ * in log and published messages.
+ */
 class OvenPublisher : public rclcpp::Node
 {
  public:
+  /**
+   * @brief Construct a new OvenPublisher node.
+   *
+   * Declares the parameter `name` and initializes the publisher, service and timer.
+   */
   OvenPublisher() : Node("oven_publisher")
   {
     // initialize the end time variable
@@ -32,13 +54,19 @@ class OvenPublisher : public rclcpp::Node
     // main timer
     timer_ = this->create_wall_timer(500ms, std::bind(&OvenPublisher::timer_callback, this));
 
-    // declare and read the oven_name parameter (string)
+    // declare and read the oven identifier parameter (string)
     oven_name_ = this->declare_parameter<std::string>("name", "default_oven");
 
     RCLCPP_DEBUG_STREAM(this->get_logger(), "The oven '" << oven_name_ << "' has been powered up!");
   }
 
  private:
+  /**
+   * @brief Timer callback that publishes current oven status periodically.
+   *
+   * Publishes a short string message that includes the oven name and remaining time
+   * (or readiness) to the "oven_status" topic.
+   */
   void timer_callback()
   {
     auto time_rem = end_time_ - std::chrono::steady_clock::now();
@@ -67,6 +95,13 @@ class OvenPublisher : public rclcpp::Node
     }
   }
 
+  /**
+   * @brief Service callback that adds 5 seconds to the oven runtime.
+   *
+   * @param request_header Unused request header (provided by rclcpp)
+   * @param request Unused request object for Trigger
+   * @param response Response object to set success and message fields
+   */
   void add_5_sec_cb(const std::shared_ptr<rmw_request_id_t> /*request_header*/,
                     const std::shared_ptr<std_srvs::srv::Trigger::Request> /*request*/,
                     std::shared_ptr<std_srvs::srv::Trigger::Response> response)
@@ -110,13 +145,18 @@ class OvenPublisher : public rclcpp::Node
     }
   }
 
-  rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr add_5_sec_service_;
-  std::chrono::time_point<std::chrono::steady_clock> end_time_;
-  std::string oven_name_;
+  rclcpp::TimerBase::SharedPtr timer_;                        /**< Timer for periodic status publishing. */
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_; /**< Publisher for oven status messages. */
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr add_5_sec_service_; /**< Service to add 5 seconds. */
+  std::chrono::time_point<std::chrono::steady_clock> end_time_; /**< Time point when oven runtime ends. */
+  std::string oven_name_; /**< Name identifier for this oven instance (from parameter "name"). */
 };
 
+/**
+ * @brief Program entrypoint for the oven_publisher node.
+ *
+ * Initializes ROS, creates the node, spins it and shuts down cleanly.
+ */
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
