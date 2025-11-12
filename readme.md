@@ -16,9 +16,19 @@ cd ~/ros2_ws
 colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --symlink-install
 ln -s ~/ros2_ws/build/beginner_tutorials/compile_commands.json src/beginner_tutorials/compile_commands.json
 
-# Run the talker node
 source install/setup.bash
-ros2 run beginner_tutorials talker
+
+# To start the oven_publisher node
+ros2 run beginner_tutorials oven_publisher
+
+# To start the oven_subscriber node
+ros2 run beginner_tutorials oven_subscriber
+
+# To launch both publisher and subscriber nodes, while passing a cli parameter
+ros2 launch beginner_tutorials start_oven.launch.py oven_name:='<oven-name-here>'
+
+# Call service to start oven for 5 seconds / add 5 seconds to already running oven
+ros2 service call /add_5_sec std_srvs/srv/Trigger {} 
 ```
 
 ## Directory structure
@@ -35,6 +45,13 @@ ros2 run beginner_tutorials talker
 ├── LICENSE
 └── readme.md
 ```
+
+## Screenshot
+
+RQT screenshot showing more than 2 different log levels
+
+<img src="attachments/rqt_screenshot.png" alt="RQT screenshot showing more than 2 different log levels" width="600"/>
+
 
 ## Assumptions / Dependencies
 
