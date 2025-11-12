@@ -13,8 +13,12 @@ find_package(std_srvs REQUIRED)
 add_executable(oven_publisher src/oven_publisher.cpp)
 ament_target_dependencies(oven_publisher rclcpp std_msgs std_srvs)
 
+add_executable(oven_subscriber src/oven_subscriber.cpp)
+ament_target_dependencies(oven_subscriber rclcpp std_msgs)
+
 install(TARGETS
   oven_publisher
+  oven_subscriber
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
