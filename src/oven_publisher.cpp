@@ -32,7 +32,10 @@ class OvenPublisher : public rclcpp::Node
     // main timer
     timer_ = this->create_wall_timer(500ms, std::bind(&OvenPublisher::timer_callback, this));
 
-    RCLCPP_DEBUG_STREAM(this->get_logger(), "The oven has been powered up!");
+    // declare and read the oven_name parameter (string)
+    oven_name_ = this->declare_parameter<std::string>("name", "default_oven");
+
+    RCLCPP_DEBUG_STREAM(this->get_logger(), "The oven '" << oven_name_ << "' has been powered up!");
   }
 
  private:
@@ -42,7 +45,7 @@ class OvenPublisher : public rclcpp::Node
 
     if (time_rem < std::chrono::steady_clock::duration::zero())
     {
-      std::string msg = "The Oven is now ready to use now";
+      std::string msg = "The Oven '" + oven_name_ + "' is now ready to use";
       RCLCPP_INFO_STREAM(this->get_logger(), msg);
 
       std_msgs::msg::String pub_msg;
@@ -53,8 +56,9 @@ class OvenPublisher : public rclcpp::Node
     {
       int time_rem_sec = std::chrono::duration_cast<std::chrono::seconds>(time_rem).count();
 
-      std::string msg =
-          "The Oven is running, time remaining: " + std::to_string(time_rem_sec) + " seconds";
+      std::string msg = "The Oven '" + oven_name_ +
+                        "' is running, time remaining: " + std::to_string(time_rem_sec) +
+                        " seconds";
       RCLCPP_INFO_STREAM(this->get_logger(), msg);
 
       std_msgs::msg::String pub_msg;
@@ -69,7 +73,7 @@ class OvenPublisher : public rclcpp::Node
   {
     // Log that the 'add 5 sec request' has been received
     {
-      std::string msg = "Received add 5 seconds request";
+      std::string msg = "Received add 5 seconds request for oven '" + oven_name_ + "'";
       RCLCPP_WARN_STREAM(this->get_logger(), msg);
 
       std_msgs::msg::String pub_msg;
@@ -86,7 +90,7 @@ class OvenPublisher : public rclcpp::Node
     {
       end_time_ = end_time_ + std::chrono::duration(5s);
 
-      std::string msg = "Added 5 seconds to the oven runtime";
+      std::string msg = "Added 5 seconds to the oven '" + oven_name_ + "' runtime";
       response->success = true;
       response->message = msg;
 
@@ -97,7 +101,7 @@ class OvenPublisher : public rclcpp::Node
     {
       end_time_ = std::chrono::steady_clock::now() + std::chrono::duration(5s);
 
-      std::string msg = "Starting the oven, and running for 5 seconds";
+      std::string msg = "Starting the oven '" + oven_name_ + "', and running for 5 seconds";
       response->success = true;
       response->message = "Starting the oven, and running for 5 seconds";
 
@@ -110,6 +114,7 @@ class OvenPublisher : public rclcpp::Node
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr add_5_sec_service_;
   std::chrono::time_point<std::chrono::steady_clock> end_time_;
+  std::string oven_name_;
 };
 
 int main(int argc, char* argv[])
