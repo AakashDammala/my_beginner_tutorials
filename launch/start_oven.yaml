@@ -1,0 +1,14 @@
+%YAML 1.2
+---
+launch:
+  - node:
+      pkg: "beginner_tutorials"
+      exec: "oven_publisher"
+      name: "oven_publisher"
+      namespace: "oven_publisher"
+
+  - node:
+      pkg: "beginner_tutorials"
+      exec: "oven_subscriber"
+      name: "oven_subscriber"
+      namespace: "oven_subscriber"
