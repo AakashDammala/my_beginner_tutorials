@@ -10,11 +10,11 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 
-add_executable(talker src/publisher_member_function.cpp)
-ament_target_dependencies(talker rclcpp std_msgs std_srvs)
+add_executable(oven_publisher src/oven_publisher.cpp)
+ament_target_dependencies(oven_publisher rclcpp std_msgs std_srvs)
 
 install(TARGETS
-  talker
+  oven_publisher
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
